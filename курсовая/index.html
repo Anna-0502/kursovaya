@@ -132,10 +132,10 @@
     <header class="header">
         <div class="container">
             <div class="logo">
-                <a href="index.html">НГТУ<span>Алексеева</span></a>
+                <a href="index.html">НГТУ <span> им. Р.Е.Алексеева</span></a>
             </div>
             <div class="auth-section" id="authSection">
-                <!-- Кнопка Войти всегда активна -->
+         
                 <button class="btn secondary" onclick="showLoginModal()">Вход</button>
             </div>
             <div class="user-section" id="userSection" style="display: none;">
@@ -145,8 +145,7 @@
         </div>
     </header>
 
-
-    <!-- Модальное окно входа -->
+    
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="authManager.closeLoginModal()">&times;</span>
@@ -175,7 +174,7 @@
         <div class="container">
             <h1 class="page-title">Студенческий портал НГТУ</h1>
             
-            <!-- Статистика -->
+
             <div id="userStats" class="stats-container" style="display: none;">
                 <div class="stat-card">
                     <h3>Мои заявки</h3>
@@ -191,7 +190,7 @@
                 </div>
             </div>
 
-            <!-- СЕРВИСЫ -->
+
             <div class="services-grid">
                 <div class="service-card">
                     <div class="card-icon">📚</div>
@@ -215,7 +214,7 @@
                 </div>
             </div>
 
-            <!-- Список заявок -->
+
             <div id="requestsList" class="requests-container" style="display: none;">
                 <h2 style="margin-bottom: 20px;">Мои заявки</h2>
                 <div id="requestsTable">
@@ -227,7 +226,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 НГТУ им. Алексеева. Все права защищены.</p>
+            <p>&copy; 2025 НГТУ им. Р.Е.Алексеева. Все права защищены.</p>
         </div>
     </footer>
 
@@ -237,7 +236,7 @@
     <script src="js/main.js"></script>
 
     <script>
-        // Навигация по страницам с проверкой авторизации
+
         function goToPage(page) {
             if (!authManager.isAuthenticated()) {
                 alert('Пожалуйста, войдите в систему');
@@ -248,7 +247,7 @@
             window.location.href = page;
         }
 
-        // Закрытие модального окна при клике вне его
+
         window.addEventListener('click', function(e) {
             const modal = document.getElementById('loginModal');
             if (e.target === modal) {
@@ -256,17 +255,16 @@
             }
         });
 
-        // Глобальные функции для кнопок (должны быть доступны всегда)
+
         window.showLoginModal = () => authManager.showLoginModal();
         window.closeLoginModal = () => authManager.closeLoginModal();
         window.logout = () => authManager.logout();
 
-        // Инициализация при загрузке
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Просто обновляем интерфейс - кнопка "Войти" всегда доступна
+
             authManager.updateUI();
             
-            // Загружаем статистику и заявки если пользователь авторизован
             if (authManager.isAuthenticated()) {
                 if (typeof updateUserStats === 'function') updateUserStats();
                 if (typeof loadUserRequests === 'function') loadUserRequests();
@@ -274,4 +272,5 @@
         });
     </script>
 </body>
+
 </html>
