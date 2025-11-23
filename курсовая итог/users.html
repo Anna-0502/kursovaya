@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями - НГТУ</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Стили для модального окна */
+        #addUserModal .modal-content {
+            max-width: 500px;
+            margin: 5% auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .btn.small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+
+        /* Адаптивность для мобильных */
+        @media (max-width: 768px) {
+            .user-actions {
+                flex-direction: column;
+            }
+            
+            .btn.small {
+                width: 100%;
+                margin: 2px 0;
+            }
+            
+            #addUserModal .modal-content {
+                margin: 2% auto;
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">НГТУ<span> им. Р.Е.Алексеева</span></a>
+            </div>
+            <div class="user-section" id="userSection" style="display: none;">
+                <span id="userName"></span>
+                <a href="admin.html" class="btn secondary">Панель заявок</a>
+                <a href="index.html" class="btn secondary">На главную</a>
+                <button class="btn secondary" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="admin-header">
+                <h1 class="page-title">Управление пользователями</h1>
+                <div>
+                    <button class="btn primary" onclick="showAddUserModal()">+ Добавить пользователя</button>
+                </div>
+            </div>
+
+            <!-- Статистика пользователей -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">Всего пользователей</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeUsers">0</div>
+                    <div class="stat-label">Активных</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="inactiveUsers">0</div>
+                    <div class="stat-label">Заблокированных</div>
+                </div>
+            </div>
+
+            <div class="admin-panel">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="userFilterStatus">Статус</label>
+                        <select id="userFilterStatus" onchange="filterUsers()">
+                            <option value="all">Все пользователи</option>
+                            <option value="active">Только активные</option>
+                            <option value="inactive">Только заблокированные</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="userSearch">Поиск</label>
+                        <input type="text" id="userSearch" placeholder="Поиск по имени или email..." oninput="filterUsers()">
+                    </div>
+                </div>
+
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Email</th>
+                            <th>Институт</th>
+                            <th>Группа</th>
+                            <th>Статус</th>
+                            <th>Дата регистрации</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        <!-- Данные будут загружены через JavaScript -->
+                    </tbody>
+                </table>
+                <div id="no-users-message" class="no-data" style="display: none;">
+                    Пользователи не найдены
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно добавления пользователя -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddUserModal()">&times;</span>
+            <h2>Добавить нового пользователя</h2>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="newUserName">ФИО *</label>
+                    <input type="text" id="newUserName" required placeholder="Иванов Иван Иванович">
+                </div>
+                <div class="form-group">
+                    <label for="newUserEmail">Email *</label>
+                    <input type="email" id="newUserEmail" required placeholder="student@nstu.ru">
+                </div>
+                <div class="form-group">
+                    <label for="newUserPassword">Пароль *</label>
+                    <input type="password" id="newUserPassword" required placeholder="Минимум 6 символов" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="newUserInstitute">Институт</label>
+                    <select id="newUserInstitute">
+                        <option value="">Выберите институт</option>
+                        <option value="ИРИТ">ИРИТ</option>
+                        <option value="ИТС">ИТС</option>
+                        <option value="ИФХТиМ">ИФХТиМ</option>
+                        <option value="ИЯЭиТФ">ИЯЭиТФ</option>
+                        <option value="ИНЭУ">ИНЭУ</option>
+                        <option value="ИПТМ">ИПТМ</option>
+                        <option value="ИНЭЛ">ИНЭЛ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newUserGroup">Группа</label>
+                    <input type="text" id="newUserGroup" placeholder="24-ПМ-2">
+                </div>
+                <div class="form-group">
+                    <label for="newUserStudentId">Студенческий билет</label>
+                    <input type="text" id="newUserStudentId" placeholder="1234567">
+                </div>
+                <div id="addUserError" class="error-message" style="display: none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeAddUserModal()">Отмена</button>
+                    <button type="submit" class="btn primary">Добавить пользователя</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/requests.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+
+        // Загрузка пользователей
+        function loadUsers() {
+            if (!authManager.isAuthenticated() || !authManager.isAdmin()) {
+                alert('Доступ запрещен. Требуются права администратора.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            allUsers = db.getAllUsers();
+            applyUserFilters();
+            updateUserStats();
+        }
+
+        // Фильтрация пользователей
+        function filterUsers() {
+            applyUserFilters();
+        }
+
+        function applyUserFilters() {
+            const statusFilter = document.getElementById('userFilterStatus').value;
+            const searchQuery = document.getElementById('userSearch').value.toLowerCase();
+
+            filteredUsers = allUsers.filter(user => {
+                const matchesStatus = statusFilter === 'all' || 
+                    (statusFilter === 'active' && user.isActive) ||
+                    (statusFilter === 'inactive' && !user.isActive);
+                
+                const matchesSearch = !searchQuery || 
+                    user.name.toLowerCase().includes(searchQuery) ||
+                    user.email.toLowerCase().includes(searchQuery);
+                
+                return matchesStatus && matchesSearch;
+            });
+
+            displayUsers();
+        }
+
+        // Отображение пользователей
+        function displayUsers() {
+            const tbody = document.getElementById('usersList');
+            const noDataMessage = document.getElementById('no-users-message');
+            
+            tbody.innerHTML = '';
+
+            if (filteredUsers.length === 0) {
+                noDataMessage.style.display = 'block';
+                return;
+            }
+
+            noDataMessage.style.display = 'none';
+
+            filteredUsers.forEach(user => {
+                const row = document.createElement('tr');
+                
+                const statusClass = user.isActive ? 'status-completed' : 'status-rejected';
+                const statusText = user.isActive ? 'Активен' : 'Заблокирован';
+
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.institute || 'Не указан'}</td>
+                    <td>${user.group || 'Не указана'}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>${new Date(user.createdAt).toLocaleDateString('ru-RU')}</td>
+                    <td>
+                        <div class="user-actions">
+                            <button class="btn small ${user.isActive ? 'reject' : 'approve'}" 
+                                    onclick="toggleUserStatus('${user.id}')">
+                                ${user.isActive ? 'Заблокировать' : 'Разблокировать'}
+                            </button>
+                            <button class="btn small danger" onclick="deleteUser('${user.id}')">Удалить</button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Обновление статистики
+        function updateUserStats() {
+            const totalUsers = allUsers.length;
+            const activeUsers = allUsers.filter(user => user.isActive).length;
+            const inactiveUsers = totalUsers - activeUsers;
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('inactiveUsers').textContent = inactiveUsers;
+        }
+
+        // Управление пользователями
+        function toggleUserStatus(userId) {
+            const user = db.toggleUserStatus(userId);
+            if (user) {
+                loadUsers();
+                const action = user.isActive ? 'разблокирован' : 'заблокирован';
+                showNotification(`Пользователь ${user.name} ${action}`, 'success');
+            }
+        }
+
+        function deleteUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (user && confirm(`Вы уверены, что хотите удалить пользователя ${user.name}? Это действие нельзя отменить.`)) {
+                const deletedUser = db.deleteUser(userId);
+                if (deletedUser) {
+                    loadUsers();
+                    showNotification(`Пользователь ${deletedUser.name} удален`, 'success');
+                }
+            }
+        }
+
+        // Модальное окно добавления пользователя
+        function showAddUserModal() {
+            document.getElementById('addUserForm').reset();
+            document.getElementById('addUserError').style.display = 'none';
+            document.getElementById('addUserModal').style.display = 'block';
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'none';
+        }
+
+        // Обработка формы добавления пользователя
+        document.getElementById('addUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('newUserName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const password = document.getElementById('newUserPassword').value;
+            const institute = document.getElementById('newUserInstitute').value;
+            const group = document.getElementById('newUserGroup').value;
+            const studentId = document.getElementById('newUserStudentId').value;
+            const errorDiv = document.getElementById('addUserError');
+
+            // Валидация
+            if (password.length < 6) {
+                showError(errorDiv, 'Пароль должен содержать минимум 6 символов');
+                return;
+            }
+
+            if (db.isEmailExists(email)) {
+                showError(errorDiv, 'Пользователь с таким email уже существует');
+                return;
+            }
+
+            // Создание пользователя
+            const newUser = db.addUser({
+                name: name,
+                email: email,
+                password: password,
+                institute: institute,
+                group: group,
+                studentId: studentId
+            });
+
+            if (newUser) {
+                closeAddUserModal();
+                loadUsers();
+                showNotification(`Пользователь ${name} успешно добавлен`, 'success');
+            }
+        });
+
+        function showError(element, message) {
+            if (element) {
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+        }
+
+        // Функция уведомлений (аналог из requests.js)
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
+                color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
+                padding: 15px 20px;
+                border-radius: 5px;
+                border: 1px solid ${type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb'};
+                z-index: 1000;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                min-width: 300px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Закрытие модальных окон
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('addUserModal');
+            if (e.target === modal) {
+                closeAddUserModal();
+            }
+        });
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            authManager.updateUI();
+            if (authManager.isAuthenticated() && authManager.isAdmin()) {
+                loadUsers();
+            } else {
+                alert('Доступ запрещен. Требуются права администратора.');
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
