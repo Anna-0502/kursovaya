@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора - Заявки</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .admin-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .applications-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .applications-table th,
+        .applications-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .applications-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+
+        .applications-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .status-pending, .status-approved, .status-completed, .status-rejected, .status-needs_data {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d1edff; color: #004085; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-needs_data { 
+            background: #fff3cd; 
+            color: #856404; 
+            border: 1px solid #ffeaa7;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.view { background: #17a2b8; color: white; }
+        .action-btn.approve { background: #28a745; color: white; }
+        .action-btn.reject { background: #dc3545; color: white; }
+        .action-btn.request-data { background: #ffc107; color: #212529; }
+
+        .action-btn.view:hover { background: #138496; }
+        .action-btn.approve:hover { background: #218838; }
+        .action-btn.reject:hover { background: #c82333; }
+        .action-btn.request-data:hover { background: #e0a800; }
+        .action-btn.request-data.active { background: #fd7e14; color: white; }
+        .action-btn.request-data.active:hover { background: #e96a10; }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Стили для модального окна запроса данных */
+        #requestDataModal .modal-content {
+            max-width: 500px;
+            margin: 5% auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+            }
+            
+            .applications-table {
+                font-size: 0.9rem;
+            }
+            
+            .applications-table th,
+            .applications-table td {
+                padding: 8px 10px;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .action-btn {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+                margin: 1px;
+            }
+
+            #requestDataModal .modal-content {
+                margin: 2% auto;
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">НГТУ <span> им. Р.Е.Алексеева</span></a>
+            </div>
+            <div class="user-section" id="userSection" style="display: none;">
+                <span id="userName"></span>
+                <a href="index.html" class="btn secondary">На главную</a>
+                <button class="btn secondary" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="admin-header">
+                <h1 class="page-title">Панель администратора</h1>
+                <div>
+                    <button class="btn primary" onclick="exportData()">Экспорт данных</button>
+                    <button class="btn secondary" onclick="clearAllData()">Очистить все</button>
+                </div>
+            </div>
+
+            <!-- Статистика -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-applications">0</div>
+                    <div class="stat-label">Всего заявок</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pending-applications">0</div>
+                    <div class="stat-label">Ожидают рассмотрения</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="approved-applications">0</div>
+                    <div class="stat-label">Одобрено</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completed-applications">0</div>
+                    <div class="stat-label">Завершено</div>
+                </div>
+            </div>
+
+            <div class="admin-panel">
+                <!-- Фильтры -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filter-type">Тип заявки</label>
+                        <select id="filter-type">
+                            <option value="all">Все типы</option>
+                            <option value="Справка о периоде обучения">Справка о периоде обучения</option>
+                            <option value="Академический отпуск">Академический отпуск</option>
+                            <option value="Справка о статусе обучения">Справка о статусе обучения</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-status">Статус</label>
+                        <select id="filter-status">
+                            <option value="all">Все статусы</option>
+                            <option value="pending">Ожидает</option>
+                            <option value="approved">Одобрено</option>
+                            <option value="completed">Завершено</option>
+                            <option value="rejected">Отклонено</option>
+                            <option value="needs_data">Требуются данные</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-date">Дата подачи</label>
+                        <input type="date" id="filter-date">
+                    </div>
+                    <div class="filter-group">
+                        <label>&nbsp;</label>
+                        <button class="btn primary" onclick="applyFilters()">Применить</button>
+                    </div>
+                </div>
+
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Тип заявки</th>
+                            <th>Студент</th>
+                            <th>Email</th>
+                            <th>Институт</th>
+                            <th>Группа</th>
+                            <th>Дата подачи</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applications-list">
+                        <!-- Данные будут загружены через JavaScript -->
+                    </tbody>
+                </table>
+                <div id="no-data-message" class="no-data" style="display: none;">
+                    Нет заявок для отображения
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно для запроса дополнительных данных -->
+    <div id="requestDataModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRequestDataModal()">&times;</span>
+            <h2>Запрос дополнительных данных</h2>
+            <p>Заявка #<span id="modalRequestIdForData"></span></p>
+            <div class="form-group">
+                <label for="dataRequestMessage">Сообщение для студента *</label>
+                <textarea id="dataRequestMessage" rows="4" placeholder="Укажите, какие дополнительные данные или документы требуются..." required></textarea>
+            </div>
+            <div id="requestDataError" class="error-message" style="display: none;"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn secondary" onclick="closeRequestDataModal()">Отмена</button>
+                <button type="button" class="btn primary" onclick="submitDataRequest()">Отправить запрос</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/requests.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        let allApplications = [];
+        let filteredApplications = [];
+        let currentRequestIdForData = null;
+
+        function loadAdminApplications() {
+            if (!authManager.isAuthenticated() || !authManager.isAdmin()) {
+                alert('Доступ запрещен. Требуются права администратора.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            allApplications = db.getAllRequests();
+            applyFilters();
+            updateAdminStats();
+        }
+
+        function applyFilters() {
+            const typeFilter = document.getElementById('filter-type').value;
+            const statusFilter = document.getElementById('filter-status').value;
+            const dateFilter = document.getElementById('filter-date').value;
+
+            filteredApplications = allApplications.filter(app => {
+                const matchesType = typeFilter === 'all' || app.type === typeFilter;
+                const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+                const matchesDate = !dateFilter || app.createdAt.split('T')[0] === dateFilter;
+                
+                return matchesType && matchesStatus && matchesDate;
+            });
+
+            displayAdminApplications();
+        }
+
+        function displayAdminApplications() {
+            const tbody = document.getElementById('applications-list');
+            const noDataMessage = document.getElementById('no-data-message');
+            
+            tbody.innerHTML = '';
+
+            if (filteredApplications.length === 0) {
+                noDataMessage.style.display = 'block';
+                return;
+            }
+
+            noDataMessage.style.display = 'none';
+
+            filteredApplications.forEach(app => {
+                const row = document.createElement('tr');
+                
+                const statusClass = `status-${app.status}`;
+                const statusText = requestsManager.getStatusText(app.status);
+
+                // Определяем какие кнопки показывать
+                let actionButtonsHtml = '';
+                
+                if (app.status === 'pending') {
+                    // Для заявок на рассмотрении - все кнопки
+                    actionButtonsHtml = `
+                        <button class="action-btn view" onclick="viewApplication('${app.id}')" title="Просмотр деталей">🔍 Подробно</button>
+                        <button class="action-btn request-data" onclick="requestMoreData('${app.id}')" title="Запросить доп. данные">📋 Данные</button>
+                        <button class="action-btn approve" onclick="updateStatus('${app.id}', 'approved')">✓ Одобрить</button>
+                        <button class="action-btn reject" onclick="updateStatus('${app.id}', 'rejected')">✗ Отклонить</button>
+                    `;
+                } else if (app.status === 'needs_data') {
+                    // Для заявок, где требуются данные - только просмотр и изменение запроса
+                    actionButtonsHtml = `
+                        <button class="action-btn view" onclick="viewApplication('${app.id}')" title="Просмотр деталей">🔍 Подробно</button>
+                        <button class="action-btn request-data active" onclick="requestMoreData('${app.id}')" title="Изменить запрос данных">✏️ Изменить</button>
+                        <div style="margin-top: 5px; font-size: 0.8rem; color: #666;">
+                            Ожидаем данные от студента
+                        </div>
+                    `;
+                } else if (app.status === 'approved') {
+                    // Для одобренных заявок - только завершение
+                    actionButtonsHtml = `
+                        <button class="action-btn view" onclick="viewApplication('${app.id}')" title="Просмотр деталей">🔍 Подробно</button>
+                        <button class="action-btn approve" onclick="updateStatus('${app.id}', 'completed')">✅ Завершить</button>
+                    `;
+                } else if (app.status === 'completed' || app.status === 'rejected') {
+                    // Для завершенных или отклоненных - только просмотр
+                    actionButtonsHtml = `
+                        <button class="action-btn view" onclick="viewApplication('${app.id}')" title="Просмотр деталей">🔍 Подробно</button>
+                    `;
+                }
+
+                row.innerHTML = `
+                    <td>${app.id}</td>
+                    <td>${app.type}</td>
+                    <td>${app.personalData?.lastname || ''} ${app.personalData?.firstname || ''}</td>
+                    <td>${app.userEmail}</td>
+                    <td>${app.personalData?.institute || ''}</td>
+                    <td>${app.personalData?.group || ''}</td>
+                    <td>${new Date(app.createdAt).toLocaleDateString('ru-RU')}</td>
+                    <td>
+                        <span class="${statusClass}">
+                            ${statusText}
+                            ${app.adminMessage ? ' 💬' : ''}
+                        </span>
+                    </td>
+                    <td>
+                        ${actionButtonsHtml}
+                        ${app.adminMessage ? `
+                            <div style="margin-top: 5px; font-size: 0.75rem; color: #6c757d;">
+                                📝 Сообщение отправлено
+                            </div>
+                        ` : ''}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateAdminStats() {
+            document.getElementById('total-applications').textContent = allApplications.length;
+            document.getElementById('pending-applications').textContent = 
+                allApplications.filter(app => app.status === 'pending').length;
+            document.getElementById('approved-applications').textContent = 
+                allApplications.filter(app => app.status === 'approved').length;
+            document.getElementById('completed-applications').textContent = 
+                allApplications.filter(app => app.status === 'completed').length;
+        }
+
+        function viewApplication(id) {
+            const app = allApplications.find(a => a.id === id);
+            if (app) {
+                let details = `Просмотр заявки #${id}\n\n`;
+                details += `Тип: ${app.type}\n`;
+                details += `Студент: ${app.personalData?.lastname || ''} ${app.personalData?.firstname || ''} ${app.personalData?.middlename || ''}\n`;
+                details += `Email: ${app.userEmail}\n`;
+                details += `Институт: ${app.personalData?.institute || ''}\n`;
+                details += `Группа: ${app.personalData?.group || ''}\n`;
+                details += `Дата подачи: ${new Date(app.createdAt).toLocaleDateString('ru-RU')}\n`;
+                details += `Статус: ${requestsManager.getStatusText(app.status)}\n\n`;
+                
+                if (app.adminMessage) {
+                    details += `Сообщение администратора:\n${app.adminMessage}\n\n`;
+                }
+                
+                // Дополнительные данные формы
+                if (app.formData) {
+                    Object.entries(app.formData).forEach(([key, value]) => {
+                        if (value && key !== 'lastname' && key !== 'firstname' && key !== 'middlename' && key !== 'institute' && key !== 'group') {
+                            details += `${key}: ${value}\n`;
+                        }
+                    });
+                }
+                
+                alert(details);
+            }
+        }
+
+        function updateStatus(id, newStatus) {
+            const result = requestsManager.updateRequestStatus(id, newStatus);
+            if (result) {
+                loadAdminApplications();
+                requestsManager.showNotification(`Статус заявки #${id} изменен на "${requestsManager.getStatusText(newStatus)}"`, 'success');
+            }
+        }
+
+        function requestMoreData(requestId) {
+            currentRequestIdForData = requestId;
+            const request = allApplications.find(app => app.id === requestId);
+            
+            document.getElementById('modalRequestIdForData').textContent = requestId;
+            
+            // Если уже есть сообщение, показываем его
+            if (request && request.adminMessage) {
+                document.getElementById('dataRequestMessage').value = request.adminMessage;
+            } else {
+                document.getElementById('dataRequestMessage').value = '';
+            }
+            
+            document.getElementById('requestDataError').style.display = 'none';
+            document.getElementById('requestDataModal').style.display = 'block';
+        }
+
+        function closeRequestDataModal() {
+            document.getElementById('requestDataModal').style.display = 'none';
+            currentRequestIdForData = null;
+        }
+
+        function submitDataRequest() {
+            const message = document.getElementById('dataRequestMessage').value.trim();
+            const errorDiv = document.getElementById('requestDataError');
+
+            if (!message) {
+                showError(errorDiv, 'Пожалуйста, укажите сообщение для студента');
+                return;
+            }
+
+            if (message.length < 10) {
+                showError(errorDiv, 'Сообщение должно содержать не менее 10 символов');
+                return;
+            }
+
+            // Обновляем статус заявки на "needs_data" и сохраняем сообщение
+            const result = requestsManager.updateRequestWithAdminMessage(currentRequestIdForData, message);
+            
+            if (result) {
+                closeRequestDataModal();
+                loadAdminApplications();
+                
+                // Показываем уведомление с деталями
+                const request = allApplications.find(app => app.id === currentRequestIdForData);
+                if (request) {
+                    requestsManager.showNotification(
+                        `Запрос дополнительных данных отправлен студенту ${request.personalData?.firstname || ''} ${request.personalData?.lastname || ''}. Заявка переведена в ожидание данных.`,
+                        'success'
+                    );
+                } else {
+                    requestsManager.showNotification(`Запрос дополнительных данных отправлен студенту`, 'success');
+                }
+            }
+        }
+
+        function showError(element, message) {
+            if (element) {
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+        }
+
+        function exportData() {
+            if (allApplications.length === 0) {
+                alert('Нет данных для экспорта');
+                return;
+            }
+            
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "ID,Тип заявки,Фамилия,Имя,Отчество,Email,Институт,Группа,Дата подачи,Статус\n"
+                + allApplications.map(app => 
+                    `${app.id},"${app.type}","${app.personalData?.lastname || ''}","${app.personalData?.firstname || ''}","${app.personalData?.middlename || ''}","${app.userEmail}","${app.personalData?.institute || ''}","${app.personalData?.group || ''}","${new Date(app.createdAt).toLocaleDateString('ru-RU')}","${requestsManager.getStatusText(app.status)}"`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "applications.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function clearAllData() {
+            if (confirm('Вы уверены, что хотите удалить все заявки? Это действие нельзя отменить.')) {
+                const data = db.getData();
+                data.requests = [];
+                db.saveData(data);
+                allApplications = [];
+                applyFilters();
+                updateAdminStats();
+                alert('Все заявки удалены');
+            }
+        }
+
+        // Обработчик закрытия модальных окон
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('requestDataModal');
+            if (e.target === modal) {
+                closeRequestDataModal();
+            }
+        });
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            authManager.updateUI();
+            if (authManager.isAuthenticated() && authManager.isAdmin()) {
+                loadAdminApplications();
+            } else {
+                alert('Доступ запрещен. Требуются права администратора.');
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
