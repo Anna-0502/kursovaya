@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Справка о статусе обучения</title>
+        <link rel="stylesheet" href="/static/css/style.css" />
+    </head>
+    <body>
+        <header class="header">
+            <div class="container">
+                <div class="logo">
+                    <a href="index.html">НГТУ<span>Алексеева</span></a>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="container">
+                <div class="form-header">
+                    <h1 class="page-title">Справка о статусе обучения</h1>
+                    <p class="form-subtitle">Заполните форму для получения справки о текущем статусе обучения</p>
+                </div>
+
+                <div class="form-container">
+                    <form class="application-form">
+                        <!-- Личные данные -->
+                        <div class="form-section">
+                            <h3 class="section-title">👤 Личные данные</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="lastname">Фамилия</label>
+                                    <input type="text" id="lastname" name="lastname" placeholder="Введите вашу фамилию" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="firstname">Имя</label>
+                                    <input type="text" id="firstname" name="firstname" placeholder="Введите ваше имя" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="middlename">Отчество</label>
+                                    <input type="text" id="middlename" name="middlename" placeholder="Введите ваше отчество">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="student_id">Номер студенческого билета</label>
+                                    <input type="text" id="student_id" name="student_id" placeholder="Например: 1234567" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="institute">Институт</label>
+                                    <select id="institute" name="institute" required>
+                                        <option value="">Выберите институт</option>
+                                        <option value="1">ИРИТ</option>
+                                        <option value="2">ИТС</option>
+                                        <option value="3">ИФХТиМ</option>
+                                        <option value="4">ИЯЭиТФ</option>
+                                        <option value="5">ИНЭУ</option>
+                                        <option value="6">ИПТМ</option>
+                                        <option value="7">ИНЭЛ</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="group">Номер группы</label>
+                                    <input type="text" id="group" name="group" placeholder="Например: 24-ПМ-2" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Данные о справке -->
+                        <div class="form-section">
+                            <h3 class="section-title">📄 Параметры справки</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="certificate_type">Тип справки</label>
+                                    <select id="certificate_type" name="certificate_type" required>
+                                        <option value="">Выберите тип справки</option>
+                                        <option value="basic">Базовая справка о статусе обучения</option>
+                                        <option value="detailed">Подробная справка с информацией о курсе и форме обучения</option>
+                                        <option value="with_gpa">Справка с указанием среднего балла</option>
+                                        <option value="for_visa">Справка для посольства (виза)</option>
+                                        <option value="for_work">Справка для работодателя</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="language">Язык справки</label>
+                                    <select id="language" name="language" required>
+                                        <option value="russian">Русский</option>
+                                        <option value="english">Английский</option>
+                                        <option value="both">Русский и английский</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="copies">Количество экземпляров</label>
+                                    <select id="copies" name="copies" required>
+                                        <option value="1">1 экземпляр</option>
+                                        <option value="2">2 экземпляра</option>
+                                        <option value="3">3 экземпляра</option>
+                                        <option value="more">Более 3 (уточнить в комментарии)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="purpose">Цель получения справки</label>
+                                <select id="purpose" name="purpose" required>
+                                    <option value="">Укажите цель получения</option>
+                                    <option value="visa">Для визы</option>
+                                    <option value="work">Для трудоустройства</option>
+                                    <option value="scholarship">Для получения стипендии</option>
+                                    <option value="transfer">Для перевода в другой ВУЗ</option>
+                                    <option value="military">Для военкомата</option>
+                                    <option value="other">Иная цель</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="additional_info">Дополнительная информация</label>
+                                <textarea id="additional_info" name="additional_info" placeholder="Укажите любую дополнительную информацию, которая должна быть отражена в справке..." rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Способ получения -->
+                        <div class="form-section">
+                            <h3 class="section-title">🏢 Способ получения</h3>
+                            <div class="delivery-options">
+                                <div class="delivery-option">
+                                    <input type="radio" id="pickup" name="delivery" value="pickup" checked>
+                                    <label for="pickup">
+                                        <span class="option-title">Самовывоз из дирекции</span>
+                                        <span class="option-description">Cрок подготовки 1-2 рабочих дня</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="delivery-option">
+                                    <input type="radio" id="email" name="delivery" value="email">
+                                    <label for="email">
+                                        <span class="option-title">Электронная версия на email</span>
+                                        <span class="option-description">Срок подготовки 2-3 рабочих дня</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group email-field" style="display: none;">
+                                <label for="email_address">Email адрес</label>
+                                <input type="email" id="email_address" name="email_address" placeholder="Введите ваш email">
+                            </div>
+                        </div>
+
+                        <!-- Контакты -->
+                        <div class="form-section">
+                            <h3 class="section-title">📞 Контактная информация</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phone">Телефон</label>
+                                    <input type="tel" id="phone" name="phone" placeholder="+7 (XXX) XXX-XX-XX" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="contact_email">Email для уведомлений</label>
+                                    <input type="email" id="contact_email" name="contact_email" placeholder="example@university.ru" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-notice">
+                            <div class="notice-icon">💡</div>
+                            <p>После подачи заявления необходимо подойти в деканат для подтверждения личности и подписания заявления.</p>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn secondary" onclick="window.history.back()">Назад</button>
+                            <button type="submit" class="btn primary">Подать заявку на справку</button>
+                        </div>
+                    </form>
+                    
+                    <div class="form-info">
+                        <div class="info-card">
+                            <h3>📋 О справке</h3>
+                            <p>Справка о статусе обучения подтверждает ваш текущий статус в университете.</p>
+                            <ul>
+                                <li>Содержит информацию о курсе, форме и сроке обучения</li>
+                                <li>Подтверждает факт обучения в НГТУ</li>
+                                <li>Может быть оформлена на разных языках</li>
+                                <li>Имеет официальную печать университета</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3>⏱️ Сроки подготовки</h3>
+                            <ul>
+                                <li>Базовая справка: 1-2 рабочих дня</li>
+                                <li>Справка на английском: 2-3 рабочих дня</li>
+                                <li>Справка для визы: 3-5 рабочих дней</li>
+                                <li>Подробная справка с GPA: 2-4 рабочих дня</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-card warning">
+                            <h3>⚠️ Важно</h3>
+                            <ul>
+                                <li>При себе иметь студенческий билет</li>
+                                <li>Справка выдается только действующим студентам</li>
+                                <li>Задолженности могут повлиять на содержание справки</li>
+                                <li>Для выпускников оформляется иной документ</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2024 НГТУ им. Алексеева. Все права защищены.</p>
+            </div>
+        </footer>
+
+        <!-- ТОЛЬКО ОДИН БЛОК СКРИПТОВ -->
+        <script src="js/database.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/requests.js"></script>
+        <script src="js/main.js"></script>
+
+        <script>
+        document.querySelector('.application-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Проверка способа доставки
+            const deliveryMethod = document.querySelector('input[name="delivery"]:checked').value;
+            const email = document.getElementById('email_address').value;
+            
+            if (deliveryMethod === 'email' && !email) {
+                alert('Пожалуйста, укажите email адрес для отправки электронной версии справки.');
+                return;
+            }
+            
+            if (!authManager.isAuthenticated()) {
+                alert('Пожалуйста, войдите в систему');
+                authManager.showLoginModal();
+                return;
+            }
+
+            const formData = new FormData(this);
+            const requestData = {
+                type: 'Справка о статусе обучения',
+                formData: Object.fromEntries(formData),
+                personalData: {
+                    lastname: formData.get('lastname'),
+                    firstname: formData.get('firstname'),
+                    studentId: formData.get('student_id'),
+                    institute: formData.get('institute'),
+                    group: formData.get('group'),
+                    certificateType: formData.get('certificate_type'),
+                    language: formData.get('language'),
+                    delivery: formData.get('delivery')
+                }
+            };
+
+            const result = await requestsManager.createRequest(requestData);
+            if (result) {
+                alert('Заявка на справку о статусе обучения успешно подана!');
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+            }
+        });
+
+        // Показ/скрытие поля email в зависимости от выбора способа доставки
+        document.querySelectorAll('input[name="delivery"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const emailField = document.querySelector('.email-field');
+                if (this.value === 'email') {
+                    emailField.style.display = 'block';
+                    document.getElementById('email_address').required = true;
+                } else {
+                    emailField.style.display = 'none';
+                    document.getElementById('email_address').required = false;
+                }
+            });
+        });
+
+        // Маска для телефона
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            e.target.value = '+7' + (x[2] ? ' (' + x[2] : '') + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+        });
+        </script>
+    </body>
+</html>
