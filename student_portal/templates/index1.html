@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Справка о периоде обучения</title>
+        <link rel="stylesheet" href="/static/css/style.css" />
+    </head>
+    <body>
+        <header class="header">
+            <div class="container">
+                <div class="logo">
+                    <a href= '/'>НГТУ<span>Алексеева</span></a>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="container">
+                <div class="form-header">
+                    <h1 class="page-title">Справка о периоде обучения</h1>
+                    <p class="form-subtitle">Заполните данные для получения справки</p>
+                </div>
+
+                <div class="form-container">
+                    <form class="application-form">
+                        <div class="form-group">
+                            <label for="lastname">Фамилия</label>
+                            <input type="text" id="lastname" name="lastname" placeholder="Введите вашу фамилию" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="firstname">Имя</label>
+                            <input type="text" id="firstname" name="firstname" placeholder="Введите ваше имя" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="middlename">Отчество</label>
+                            <input type="text" id="middlename" name="middlename" placeholder="Введите ваше отчество">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="institute">Институт</label>
+                            <select id="institute" name="institute" required>
+                                <option value="">Выберите институт</option>
+                                <option value="1">ИРИТ</option>
+                                <option value="2">ИТС</option>
+                                <option value="3">ИФХТиМ</option>
+                                <option value="4">ИЯЭиТФ</option>
+                                <option value="5">ИНЭУ</option>
+                                <option value="6">ИПТМ</option>
+                                <option value="7">ИНЭЛ</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="group">Номер группы</label>
+                            <input type="text" id="group" name="group" placeholder="Например: 24-ПМ-2" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="purpose">Цель получения справки</label>
+                            <textarea id="purpose" name="purpose" placeholder="Укажите, для каких целей требуется справка..." rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn secondary" onclick="window.history.back()">Назад</button>
+                            <button type="submit" class="btn primary">Отправить заявку</button>
+                        </div>
+                    </form>
+                    
+                    <div class="form-info">
+                        <div class="info-card">
+                            <h3>📋 Информация о справке</h3>
+                            <p>Справка о периоде обучения содержит информацию о пройденных семестрах, успеваемости и текущем статусе обучения.</p>
+                            <ul>
+                                <li>Срок подготовки: 3-5 рабочих дней</li>
+                                <li>Выдается в дирекции</li>
+                                <li>Бесплатно для студентов</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2024 НГТУ им. Алексеева. Все права защищены.</p>
+            </div>
+        </footer>
+
+        <!-- ТОЛЬКО ОДИН БЛОК СКРИПТОВ -->
+        <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/database.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/requests.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+        <script>
+        document.querySelector('.application-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!authManager.isAuthenticated()) {
+                alert('Пожалуйста, войдите в систему');
+                authManager.showLoginModal();
+                return;
+            }
+
+            const formData = new FormData(this);
+            const requestData = {
+                type: 'Справка о периоде обучения',
+                formData: Object.fromEntries(formData),
+                personalData: {
+                    lastname: formData.get('lastname'),
+                    firstname: formData.get('firstname'),
+                    institute: formData.get('institute'),
+                    group: formData.get('group')
+                }
+            };
+
+            const result = await requestsManager.createRequest(requestData);
+            if (result) {
+                alert('Заявка на справку успешно отправлена!');
+                setTimeout(() => { window.location.href = '/'; }, 2000);
+            }
+        });
+        </script>
+    </body>
+</html>
